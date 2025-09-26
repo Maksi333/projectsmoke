@@ -38,9 +38,11 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
-    _checkSetupStatus();
+    tempSetup(); //remove later
+    //_checkSetupStatus(); implement this again
   }
 
+  //todo
   Future<void> _checkSetupStatus() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
@@ -48,6 +50,7 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
+  //change issetupdone to true
   Future<void> _completeSetup() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('setup_done', true);
@@ -64,7 +67,7 @@ class _MyHomePageState extends State<MyHomePage> {
     }
 
     if (!isSetupDone!) {
-      return StartPage(onSetupComplete: _completeSetup);
+      return SetupPage(onSetupComplete: _completeSetup);
     }
 
     Widget page;
@@ -110,5 +113,13 @@ class _MyHomePageState extends State<MyHomePage> {
         },
       ),
     );
+  }
+
+  void tempSetup() async {
+    final pref = await SharedPreferences.getInstance();
+    await pref.setBool('setup_done', true);
+    setState(() {
+      isSetupDone = false;
+    });
   }
 }
