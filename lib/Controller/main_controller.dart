@@ -7,7 +7,6 @@ class MainController {
   int pouchesInBox = 0;
 
   DateTime startDate = DateTime.now();
-  int daysClean = 0;
 
   /// Calculate boxes spared since start date
   double calculateSparedBoxes() {
@@ -33,12 +32,19 @@ class MainController {
     return savings;
   }
 
-  /// Calculate number of days clean since start date
-  int daysSinceStart() {
-    if (startDate.isAfter(DateTime.now())) return 0;
+  /// Get clean time as a Duration
+  Duration timeSinceStart() {
+    if (startDate.isAfter(DateTime.now())) return Duration.zero;
+    return DateTime.now().difference(startDate);
+  }
 
-    final diff = DateTime.now().difference(startDate);
-    daysClean = diff.inDays;
-    return daysClean;
+  /// Format clean time as "X days, Y hours, Z minutes"
+  String formattedTimeClean() {
+    final duration = timeSinceStart();
+    final days = duration.inDays;
+    final hours = duration.inHours % 24;
+    final minutes = duration.inMinutes % 60;
+
+    return '$days days, $hours hours, $minutes minutes';
   }
 }

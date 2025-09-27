@@ -1,16 +1,35 @@
-import 'Controller/main_controller.dart';
+import 'dart:async';
 import 'package:flutter/material.dart';
-import 'setup.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'Controller/main_controller.dart';
 
 MainController controller = MainController();
 List<String> quotes = controller.quotes;
-double sparedBoxes = controller.sparedBoxes;
-double savings = controller.savings;
-int days = controller.daysClean;
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Refresh every minute
+    _timer = Timer.periodic(Duration(minutes: 1), (_) {
+      setState(() {}); // triggers rebuild
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -21,145 +40,105 @@ class HomePage extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Container(
-              margin: const EdgeInsets.only(bottom: 24),
-              child: Text(
-                'Welcome Back!',
-                style: Theme.of(context).textTheme.headlineMedium,
-              ),
+            Text(
+              'Welcome Back!',
+              style: Theme.of(context).textTheme.headlineMedium,
             ),
-            Container(
-              width: 350,
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              decoration: BoxDecoration(
-                color: Colors.green[100],
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.green, width: 2),
-              ),
-              child: Column(
-                children: [
-                  Text(
-                    'Your Daily Quote',
-                    style: Theme.of(context).textTheme.headlineSmall,
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    quotes.isNotEmpty
-                        ? quotes[DateTime.now().day % quotes.length]
-                        : 'Stay positive and keep pushing forward!',
-                    style: Theme.of(context).textTheme.bodyMedium,
-                    textAlign: TextAlign.center,
-                  ),
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Container(
-                width: 350,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 16,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.green[100],
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.green, width: 2),
-                ),
-                child: Column(
-                  children: [
-                    Text(
-                      'Days clean',
-                      style: Theme.of(context).textTheme.headlineMedium,
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      '${controller.daysSinceStart()} days',
-                      style: Theme.of(context).textTheme.headlineSmall,
-                    ),
-                  ],
-                ),
-              ),
-            ),
+            const SizedBox(height: 16),
+            _buildQuoteBox(),
+            const SizedBox(height: 16),
+            _buildTimeCleanBox(),
+            const SizedBox(height: 16),
             Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Container(
-                    height: 160,
-                    width: 165,
-                    decoration: BoxDecoration(
-                      color: Colors.green[100],
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.green, width: 2),
-                    ),
-                    child: Column(
-                      children: [
-                        TextField(
-                          decoration: InputDecoration(
-                            labelText: 'Boxes',
-                            prefixIcon: Icon(Icons.inbox),
-                          ),
-                        ),
-                        Center(
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Text(
-                              'Boxes Saved',
-                              style: Theme.of(context).textTheme.labelLarge,
-                            ),
-                          ),
-                        ),
-                        Center(
-                          child: Text(
-                            '${controller.calculateSparedBoxes()}',
-                            style: Theme.of(context).textTheme.headlineMedium,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+                _buildStatBox(
+                  'Boxes Saved',
+                  controller.calculateSparedBoxes().toStringAsFixed(2),
+                  Icons.inbox,
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Container(
-                    height: 160,
-                    width: 165,
-                    decoration: BoxDecoration(
-                      color: Colors.green[100],
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.green, width: 2),
-                    ),
-                    child: Column(
-                      children: [
-                        TextField(
-                          decoration: InputDecoration(
-                            labelText: 'Savings',
-                            prefixIcon: Icon(Icons.savings),
-                          ),
-                        ),
-                        Center(
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Text(
-                              'Money Saved',
-                              style: Theme.of(context).textTheme.labelLarge,
-                            ),
-                          ),
-                        ),
-                        Center(
-                          child: Text(
-                            '${controller.calculateSavings().toStringAsFixed(2)} Dkk',
-                            style: Theme.of(context).textTheme.headlineMedium,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+                _buildStatBox(
+                  'Money Saved',
+                  '${controller.calculateSavings().toStringAsFixed(2)} Dkk',
+                  Icons.savings,
                 ),
               ],
             ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildQuoteBox() {
+    return Container(
+      width: 350,
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+      decoration: BoxDecoration(
+        color: Colors.green[100],
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.green, width: 2),
+      ),
+      child: Column(
+        children: [
+          Text(
+            'Your Daily Quote',
+            style: Theme.of(context).textTheme.headlineSmall,
+          ),
+          const SizedBox(height: 12),
+          Text(
+            quotes.isNotEmpty
+                ? quotes[DateTime.now().day % quotes.length]
+                : 'Stay positive and keep pushing forward!',
+            style: Theme.of(context).textTheme.bodyMedium,
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTimeCleanBox() {
+    return Container(
+      width: 350,
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+      decoration: BoxDecoration(
+        color: Colors.green[100],
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.green, width: 2),
+      ),
+      child: Column(
+        children: [
+          Text('Time Clean', style: Theme.of(context).textTheme.headlineMedium),
+          const SizedBox(height: 12),
+          Text(
+            controller.formattedTimeClean(),
+            style: Theme.of(context).textTheme.headlineSmall,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatBox(String label, String value, IconData icon) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Container(
+        height: 160,
+        width: 165,
+        decoration: BoxDecoration(
+          color: Colors.green[100],
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.green, width: 2),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, size: 32),
+            const SizedBox(height: 8),
+            Text(label, style: Theme.of(context).textTheme.labelLarge),
+            const SizedBox(height: 8),
+            Text(value, style: Theme.of(context).textTheme.headlineMedium),
           ],
         ),
       ),

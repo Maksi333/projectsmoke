@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'setup.dart';
@@ -35,13 +36,18 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   bool? isSetupDone;
+  Timer? _timer;
   var selectedIndex = 1;
 
   @override
   void initState() {
     super.initState();
+
     initializeApp();
-    //_checkSetupStatus(); implement this again
+    _timer = Timer.periodic(Duration(minutes: 1), (_) {
+      setState(() {}); // triggers rebuild to update time clean
+    });
+    _checkSetupStatus();
   }
 
   Future<void> initializeApp() async {
