@@ -4,7 +4,9 @@ import 'setup.dart';
 import 'stats.dart';
 import 'home.dart';
 import 'money_saved.dart';
+import 'Controller/main_controller.dart';
 
+MainController controller = MainController();
 void main() {
   runApp(const MyApp());
 }
@@ -38,8 +40,14 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
-    tempSetup(); //remove later
+    initializeApp();
     //_checkSetupStatus(); implement this again
+  }
+
+  Future<void> initializeApp() async {
+    await loadSetup();
+    await _checkSetupStatus();
+    setState(() {});
   }
 
   //todo
@@ -115,11 +123,22 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  void tempSetup() async {
-    final pref = await SharedPreferences.getInstance();
-    await pref.setBool('setup_done', true);
-    setState(() {
-      isSetupDone = false;
-    });
+  Future<void> loadSetup() async {
+    final prefs = await SharedPreferences.getInstance();
+    controller.boxPrice = prefs.getDouble('boxPrice') ?? -1;
+    controller.pouchesPerDay = prefs.getInt('pouchesPerDay') ?? -1;
+    controller.pouchesInBox = prefs.getInt('pouchesInBox') ?? -1;
+    String? startDateString = prefs.getString('startDate');
+    if (startDateString != null) {
+      controller.startDate = DateTime.parse(startDateString);
+    }
   }
+
+  // void tempSetup() async {
+  //   final pref = await SharedPreferences.getInstance();
+  //   await pref.setBool('setup_done', true);
+  //   setState(() {
+  //     isSetupDone = false;
+  //   });
+  // }
 }

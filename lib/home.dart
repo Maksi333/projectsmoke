@@ -1,6 +1,7 @@
 import 'Controller/main_controller.dart';
-
 import 'package:flutter/material.dart';
+import 'setup.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 MainController controller = MainController();
 List<String> quotes = controller.quotes;
@@ -73,7 +74,7 @@ class HomePage extends StatelessWidget {
                     ),
                     const SizedBox(height: 12),
                     Text(
-                      '$days Days',
+                      '${controller.daysSinceStart()} days',
                       style: Theme.of(context).textTheme.headlineSmall,
                     ),
                   ],
@@ -105,14 +106,14 @@ class HomePage extends StatelessWidget {
                           child: Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: Text(
-                              'Boxes Saves',
+                              'Boxes Saved',
                               style: Theme.of(context).textTheme.labelLarge,
                             ),
                           ),
                         ),
                         Center(
                           child: Text(
-                            '$sparedBoxes',
+                            '${controller.calculateSparedBoxes()}',
                             style: Theme.of(context).textTheme.headlineMedium,
                           ),
                         ),
@@ -149,7 +150,7 @@ class HomePage extends StatelessWidget {
                         ),
                         Center(
                           child: Text(
-                            '$savings Dkk',
+                            '${controller.calculateSavings().toStringAsFixed(2)} Dkk',
                             style: Theme.of(context).textTheme.headlineMedium,
                           ),
                         ),

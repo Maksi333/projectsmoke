@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'Controller/main_controller.dart';
+
+MainController controller = MainController();
 
 class SetupPage extends StatelessWidget {
   final VoidCallback onSetupComplete;
@@ -54,6 +58,9 @@ class SetupPage extends StatelessWidget {
                     }
                     return null;
                   },
+                  onSaved: (value) {
+                    controller.boxPrice = double.parse(value!);
+                  },
                   decoration: const InputDecoration(
                     border: OutlineInputBorder(),
                     labelText: 'Price in DKK',
@@ -63,7 +70,7 @@ class SetupPage extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(top: 15.0, bottom: 10),
                 child: Text(
-                  'What is your average daily consumption of snus boxes?',
+                  'How many pouches do you use per day?',
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
               ),
@@ -78,18 +85,51 @@ class SetupPage extends StatelessWidget {
                     }
                     return null;
                   },
+                  onSaved: (value) {
+                    controller.pouchesPerDay = int.parse(value!);
+                  },
                   decoration: const InputDecoration(
                     border: OutlineInputBorder(),
-                    labelText: 'Boxes per day',
+                    labelText: 'Pouches per day',
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 15.0, bottom: 10),
+                child: Text(
+                  'How many pouches are in one box?',
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                child: TextFormField(
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter a value';
+                    }
+                    return null;
+                  },
+                  onSaved: (value) {
+                    controller.pouchesInBox = int.parse(value!);
+                  },
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                    labelText: 'Puches in a box',
                   ),
                 ),
               ),
               Padding(
                 padding: const EdgeInsets.all(10.0),
                 child: ElevatedButton(
-                  onPressed: () {
+                  onPressed: () async {
                     if (formKey.currentState!.validate()) {
+                      formKey.currentState!.save();
+                      controller.startDate = DateTime.now();
                       onSetupComplete();
+                      await saveSetup();
                     }
                   },
                   child: const Text('Complete Setup'),
@@ -100,5 +140,13 @@ class SetupPage extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Future<void> saveSetup() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setDouble('boxPrice', controller.boxPrice);
+    await prefs.setInt('pouchesPerDay', controller.pouchesPerDay);
+    await prefs.setInt('pouchesInBox', controller.pouchesInBox);
+    await prefs.setString('startDate', controller.startDate.toIso8601String());
   }
 }

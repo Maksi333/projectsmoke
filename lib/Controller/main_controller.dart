@@ -1,28 +1,44 @@
-import 'dart:math';
-
 class MainController {
   List<String> quotes = List.empty();
-  double sparedBoxes = -1;
-  double savings = -1;
+  double sparedBoxes = 0;
+  double savings = 0;
+  double boxPrice = 0;
+  int pouchesPerDay = 0;
+  int pouchesInBox = 0;
 
-  DateTime startDate = DateTime(2023, 1, 1);
-  int daysClean = -1;
+  DateTime startDate = DateTime.now();
+  int daysClean = 0;
 
+  /// Calculate boxes spared since start date
   double calculateSparedBoxes() {
-    // Example calculation
-    sparedBoxes = Random().nextDouble() * 100;
+    if (pouchesPerDay <= 0 || pouchesInBox <= 0) return 0;
+    if (startDate.isAfter(DateTime.now())) return 0;
+
+    final diff = DateTime.now().difference(startDate);
+    sparedBoxes = diff.inDays * (pouchesPerDay / pouchesInBox);
+
+    // Round to 2 decimal places
+    sparedBoxes = double.parse(sparedBoxes.toStringAsFixed(2));
     return sparedBoxes;
   }
 
+  /// Calculate money saved since start date
   double calculateSavings() {
-    // Example calculation
-    savings = Random().nextDouble() * 1000;
+    // Ensure sparedBoxes is up-to-date
+    calculateSparedBoxes();
+    savings = sparedBoxes * boxPrice;
+
+    // Round to 2 decimal places
+    savings = double.parse(savings.toStringAsFixed(2));
     return savings;
   }
 
+  /// Calculate number of days clean since start date
   int daysSinceStart() {
-    // Example calculation
-    daysClean = Random().nextInt(365);
+    if (startDate.isAfter(DateTime.now())) return 0;
+
+    final diff = DateTime.now().difference(startDate);
+    daysClean = diff.inDays;
     return daysClean;
   }
 }
