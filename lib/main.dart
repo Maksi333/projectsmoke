@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'dart:core';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'setup.dart';
 import 'stats.dart';
@@ -51,6 +52,11 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> initializeApp() async {
+    final prefs = await SharedPreferences.getInstance();
+    debugPrint(prefs.getDouble('boxPrice').toString());
+    debugPrint(prefs.getInt('pouchesPerDay').toString());
+    debugPrint(prefs.getInt('pouchesInBox').toString());
+    debugPrint(prefs.getString('startDate').toString());
     await loadSetup();
     await _checkSetupStatus();
     setState(() {});

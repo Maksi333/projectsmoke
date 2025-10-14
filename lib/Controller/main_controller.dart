@@ -1,3 +1,5 @@
+import 'package:shared_preferences/shared_preferences.dart';
+
 class MainController {
   List<String> quotes = List.empty();
   double sparedBoxes = 0;
@@ -34,8 +36,7 @@ class MainController {
 
   /// Get clean time as a Duration
   Duration timeSinceStart() {
-    if (startDate.isAfter(DateTime.now())) return Duration.zero;
-    return DateTime.now().difference(startDate);
+    return (DateTime.now().difference(startDate));
   }
 
   /// Format clean time as "X days, Y hours, Z minutes"
